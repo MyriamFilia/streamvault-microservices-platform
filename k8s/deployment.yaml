@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: series-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: series-service
+  template:
+    metadata:
+      labels:
+        app: series-service
+    spec:
+      containers:
+        - name: series-service
+          image: myrafilia/series-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000

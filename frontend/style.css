@@ -1,0 +1,44 @@
+body {
+  background: radial-gradient(circle at top, #20253a 0, #050510 55%, #020308 100%);
+}
+
+.card {
+    background-color: #11131d;
+    border: 1px solid #262b3f;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+}
+
+.card img {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    object-position: center;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+.detail-poster {
+    width: 100%;
+    height: 600px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 12px;
+}
+
+.badge-genre {
+  background-color: #20263a;
+  color: #c7d2ff;
+  font-size: 0.7rem;
+  margin-right: 0.25rem;
+}

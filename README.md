@@ -7,6 +7,14 @@ Projet microservices sur les séries TV.
 - frontend (HTML/CSS/JS + Nginx)
 - docker-compose
 
+## Docker Hub
+Image disponible sur Docker Hub :
+
+```bash
+docker pull myrafilia/series-service:latest
+docker run -p 8000:8000 myrafilia/series-service:latest
+```
+
 ## Lancer le projet
 ```bash
 docker compose up --build

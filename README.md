@@ -67,3 +67,10 @@ http://series.local/api
 
 Swagger:  
 http://series.local/api/docs
+
+## Configuration hosts
+Ajouter dans le fichier hosts :
+
+```text
+127.0.0.1 series.local
+```

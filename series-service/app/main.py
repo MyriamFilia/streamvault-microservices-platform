@@ -4,7 +4,9 @@ from app.routes.series_routes import router as series_router
 
 app = FastAPI(
     title="Series Service",
-    version="1.1.0"
+    version="1.1.0",
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json"
 )
 
 # CORS doit être ajouté AVANT include_router

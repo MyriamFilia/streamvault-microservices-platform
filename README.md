@@ -38,6 +38,7 @@ docker compose up --build
 ```
 
 ### Avec Kubernetes + Istio
+⚠️ Istio doit être installé avant de lancer les fichiers k8s, sinon le Gateway et le VirtualService ne fonctionneront pas.
 
 ```bash
 minikube start

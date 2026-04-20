@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: series-service
-          image: myrafilia/series-service:latest
+          image: myrafilia/series-service:v3
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

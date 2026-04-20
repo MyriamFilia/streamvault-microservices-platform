@@ -2,9 +2,8 @@ from fastapi import APIRouter, HTTPException, Query
 from requests.exceptions import RequestException
 from app.services.series_service import search_series, get_series_details ,get_popular_series
 
-router = APIRouter(prefix="/series", tags=["Series"])
+router = APIRouter(prefix="/api/series", tags=["Series"])
 
-    
 
 @router.get("/search")
 def search_tv_series(

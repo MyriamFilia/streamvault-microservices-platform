@@ -30,7 +30,7 @@ async function loadDetail() {
 
   try {
     const show = await safeFetch(
-      `http://localhost:8000/series/${id}`
+      `/api/series/${id}`
     );
 
     const imageUrl =

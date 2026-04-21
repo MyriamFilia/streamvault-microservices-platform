@@ -1,25 +1,46 @@
 # Series Microservices Platform
-
-Projet microservices sur les séries TV.
+Projet de plateforme de découverte de séries TV basé sur une architecture microservices avec FastAPI, Docker, Kubernetes, gRPC et Istio.
 
 ## Architecture
 
-- series-service (FastAPI)
-- frontend (HTML/CSS/JS + Nginx)
-- Docker / docker-compose
+### Microservices
+- series-service → recherche de séries via API publique (TVMaze)
+- user-service → authentification JWT + gestion utilisateurs
+- frontend → interface HTML/CSS/JS + Nginx reverse proxy
+
+### Infrastructure
+- Docker + docker-compose
 - Kubernetes + Minikube
-- Service Mesh avec Istio
+- Istio Service Mesh
 - Istio Gateway + VirtualService
+- PostgreSQL unique avec plusieurs bases :
+    - userdb
+    - favoritesdb
+    - review
+
+### Kubernetes PostgreSQL
+- Secret
+- Storage (PVC)
+- ConfigMap (init.sql)
+- Deployment
+- Service
 
 ## Docker Hub
 
 Images disponibles sur Docker Hub :
 
-### Backend
+### Series Service
 
 ```bash
 docker pull myrafilia/series-service:latest
 docker run -p 8000:8000 myrafilia/series-service:latest
+```
+
+### User Service
+
+```bash
+docker pull myrafilia/user-service:latest
+docker run -p 8000:8000 myrafilia/user-service:latest
 ```
 
 ### Frontend
@@ -47,16 +68,7 @@ istioctl install --set profile=demo -y
 
 kubectl label namespace default istio-injection=enabled
 
-kubectl apply -f k8s/series-deployment.yaml
-kubectl apply -f k8s/series-service.yaml
-kubectl apply -f k8s/frontend-deployment.yaml
-kubectl apply -f k8s/frontend-service.yaml
-
-kubectl apply -f k8s/istio-gateway.yaml
-kubectl apply -f k8s/virtual-service.yaml
-
-kubectl rollout restart deployment frontend-deployment
-kubectl rollout restart deployment series-service-deployment
+kubectl apply -f k8s/nt
 
 minikube tunnel
 ```
@@ -66,13 +78,15 @@ minikube tunnel
 ### Local
 
 Frontend:  
-http://localhost:5500
+http://localhost/5500
 
-Backend:  
+API Tv_maz Backend:  
 http://localhost:8000
-
-Swagger:  
 http://localhost:8000/docs
+
+Users : 
+http://localhost:8002
+http://localhost:8002/docs
 
 ---
 
@@ -81,11 +95,15 @@ http://localhost:8000/docs
 Frontend :  
 http://series.local
 
-Backend :  
+Series API :  
 http://series.local/api
-
 Swagger :  
 http://series.local/api/docs
+
+Users :  
+http://series.local/users
+Swagger :  
+http://users.local/users/docs
 
 ## Configuration hosts
 

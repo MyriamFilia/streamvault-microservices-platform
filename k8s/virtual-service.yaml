@@ -8,7 +8,7 @@ spec:
   gateways:
   - series-gateway
   http:
-    # RÈGLE 1 : Backend (API) 
+    # RÈGLE 1 : Backend Series
     - match:
         - uri:
             prefix: /api
@@ -18,7 +18,17 @@ spec:
             port:
               number: 8000
 
-    # RÈGLE 2 : Frontend
+    # RÈGLE 2 : Backend Users
+    - match:
+        - uri:
+            prefix: /users
+      route:
+        - destination:
+            host: user-service
+            port:
+              number: 8000
+
+    # RÈGLE 3 : Frontend (Par défaut)
     - route:
         - destination:
             host: frontend-service

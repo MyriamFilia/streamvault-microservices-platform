@@ -1,34 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service-deployment
+  name: reviews-service-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: reviews-service
   template:
     metadata:
       labels:
-        app: user-service
+        app: reviews-service
     spec:
       containers:
-        - name: user-service
-          image: myrafilia/user-service:v2
+        - name: reviews-service
+          image: myrafilia/review-service:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:
-            # Connexion au réseau interne K8s
-            - name: POSTGRES_HOST
-              value: postgres-service
-            - name: POSTGRES_DB
-              value: userdb
-            - name: SECRET_KEY
-              value: dev_secret_key_change_in_production
-            - name: SERIES_SERVICE_ADDR
-              value: series-service:50051
-            # Récupération sécurisée depuis le Secret
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -39,9 +29,17 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: "reviewdb"
+            - name: POSTGRES_HOST
+              value: "postgres-service"
+            - name: SECRET_KEY
+              value: "dev_secret_key_change_in_production"
+            - name: SERIES_SERVICE_ADDR
+              value: "series-service:50051"
           livenessProbe:
             httpGet:
-              path: /user/health
+              path: /reviews/health
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 10

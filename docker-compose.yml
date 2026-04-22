@@ -74,6 +74,28 @@ services:
     networks:
       - app-network
 
+
+  # ── Review Service ───────────────────────────────────────
+  review-service:
+    build: ./review-service
+    container_name: review-service
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./review-service:/app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: reviewdb
+      POSTGRES_HOST: postgres
+      SECRET_KEY: dev_secret_key_change_in_production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
   # ── Frontend + Nginx Proxy ─────────────────────────────────
   frontend:
     image: nginx:alpine
@@ -87,6 +109,7 @@ services:
       - user-service
       - series-service
       - favorites-service
+      - review-service
     restart: always
     networks:
       - app-network

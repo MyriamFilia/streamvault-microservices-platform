@@ -34,3 +34,11 @@ def decode_access_token(token: str) -> dict | None:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except jwt.InvalidTokenError: # L'erreur spécifique à PyJWT
         return None
+    
+token_blacklist = set()
+
+def blacklist_token(token: str):
+    token_blacklist.add(token)
+
+def is_token_blacklisted(token: str) -> bool:
+    return token in token_blacklist

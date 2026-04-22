@@ -28,7 +28,18 @@ spec:
             port:
               number: 8000
 
-    # RÈGLE 3 : Frontend (Par défaut)
+    # RÈGLE 3 : Backend Favorites
+    - match:
+        - uri:
+            prefix: /favorites
+      route:
+        - destination:
+            host: favorites-service
+            port:
+              number: 8000
+
+
+    # RÈGLE 4 : Frontend (Par défaut)
     - route:
         - destination:
             host: frontend-service

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
 from app.schemas import UserCreate, UserLogin, UserResponse, UserUpdate, TokenResponse
-from app.auth import hash_password, verify_password, create_access_token, decode_access_token
+from app.auth import hash_password, verify_password, create_access_token, decode_access_token , blacklist_token, is_token_blacklisted
 
 router = APIRouter(prefix="/users", tags=["Users"])
 security = HTTPBearer()
@@ -87,6 +87,14 @@ def update_me(
     db.refresh(user)
     return user
 
+# ── Déconnexion ──────────────────────────────────────────────
+@router.post("/logout")
+def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    payload = decode_access_token(credentials.credentials)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Token invalide ou expiré")
+    blacklist_token(credentials.credentials)
+    return {"message": "Déconnexion réussie"}
 
 # ── Health check ──────────────────────────────────────────────
 @router.get("/health")

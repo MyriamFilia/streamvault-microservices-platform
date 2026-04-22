@@ -8,6 +8,8 @@ Projet de plateforme de découverte de séries TV basé sur une architecture mic
 
 - series-service → recherche de séries via API publique (TVMaze)
 - user-service → authentification JWT + gestion utilisateurs
+- favorites-service → gestion des favoris
+- reviews-service → gestion des reviews
 - frontend → interface HTML/CSS/JS + Nginx reverse proxy
 
 ### Infrastructure
@@ -52,6 +54,13 @@ docker run -p 8000:8000 myrafilia/user-service:latest
 ```bash
 docker pull myrafilia/favorites-service:latest
 docker run -p 8000:8000 myrafilia/favorites-service:latest
+```
+
+### Reviews Service
+
+```bash
+docker pull myrafilia/review-service:latest
+docker run -p 8000:8000 myrafilia/review-service:latest
 ```
 
 ### Frontend
@@ -110,6 +119,10 @@ Favorites :
 http://localhost:8003
 http://localhost:8003/docs
 
+Reviews :
+http://localhost:8004
+http://localhost:8004/docs
+
 ---
 
 ### Kubernetes + Istio
@@ -131,6 +144,14 @@ Favorites :
 http://series.local/favorites
 Swagger :  
 http://favorites.local/favorites/docs
+
+Reviews :  
+http://series.local/reviews
+Swagger :  
+http://reviews.local/reviews/docs
+
+---
+
 
 ## Configuration hosts
 

@@ -38,8 +38,17 @@ spec:
             port:
               number: 8000
 
+    # RÈGLE 4 : Backend Reviews
+    - match:
+        - uri:
+            prefix: /reviews
+      route:
+        - destination:
+            host: reviews-service
+            port:
+              number: 8000
 
-    # RÈGLE 4 : Frontend (Par défaut)
+    # RÈGLE 5 : Frontend (Par défaut)
     - route:
         - destination:
             host: frontend-service

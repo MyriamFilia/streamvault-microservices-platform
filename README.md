@@ -1,24 +1,28 @@
 # Series Microservices Platform
+
 Projet de plateforme de découverte de séries TV basé sur une architecture microservices avec FastAPI, Docker, Kubernetes, gRPC et Istio.
 
 ## Architecture
 
 ### Microservices
+
 - series-service → recherche de séries via API publique (TVMaze)
 - user-service → authentification JWT + gestion utilisateurs
 - frontend → interface HTML/CSS/JS + Nginx reverse proxy
 
 ### Infrastructure
+
 - Docker + docker-compose
 - Kubernetes + Minikube
 - Istio Service Mesh
 - Istio Gateway + VirtualService
 - PostgreSQL unique avec plusieurs bases :
-    - userdb
-    - favoritesdb
-    - review
+  - userdb
+  - favoritesdb
+  - review
 
 ### Kubernetes PostgreSQL
+
 - Secret
 - Storage (PVC)
 - ConfigMap (init.sql)
@@ -43,6 +47,13 @@ docker pull myrafilia/user-service:latest
 docker run -p 8000:8000 myrafilia/user-service:latest
 ```
 
+### Favorites Service
+
+```bash
+docker pull myrafilia/favorites-service:latest
+docker run -p 8000:8000 myrafilia/favorites-service:latest
+```
+
 ### Frontend
 
 ```bash
@@ -59,6 +70,7 @@ docker compose up --build
 ```
 
 ### Avec Kubernetes + Istio
+
 ⚠️ Istio doit être installé avant de lancer les fichiers k8s, sinon le Gateway et le VirtualService ne fonctionneront pas.
 
 ```bash
@@ -68,7 +80,13 @@ istioctl install --set profile=demo -y
 
 kubectl label namespace default istio-injection=enabled
 
-kubectl apply -f k8s/nt
+kubectl apply -f k8s/postgres/postgres-secret.yaml
+kubectl apply -f k8s/postgres/postgres-storage.yaml
+kubectl apply -f k8s/postgres/configmap.yaml
+kubectl apply -f k8s/postgres/postgres-deployment.yaml
+kubectl apply -f k8s/postgres/postgres-service.yaml
+
+kubectl apply -f k8s/
 
 minikube tunnel
 ```
@@ -84,9 +102,13 @@ API Tv_maz Backend:
 http://localhost:8000
 http://localhost:8000/docs
 
-Users : 
+Users :
 http://localhost:8002
 http://localhost:8002/docs
+
+Favorites :
+http://localhost:8003
+http://localhost:8003/docs
 
 ---
 
@@ -104,6 +126,11 @@ Users :
 http://series.local/users
 Swagger :  
 http://users.local/users/docs
+
+Favorites :  
+http://series.local/favorites
+Swagger :  
+http://favorites.local/favorites/docs
 
 ## Configuration hosts
 

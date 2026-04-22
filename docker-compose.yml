@@ -53,6 +53,27 @@ services:
     networks:
       - app-network
 
+  # ── Favorites Service ──────────────────────────────────────
+  favorites-service:
+    build: ./favorites-service
+    container_name: favorites-service
+    ports:
+      - "8003:8000" # Accès direct pour tes tests via localhost:8003
+    volumes:
+      - ./favorites-service:/app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: favoritesdb   # Il pointe bien vers sa propre base !
+      POSTGRES_HOST: postgres
+      SECRET_KEY: dev_secret_key_change_in_production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
   # ── Frontend + Nginx Proxy ─────────────────────────────────
   frontend:
     image: nginx:alpine
@@ -65,6 +86,7 @@ services:
     depends_on:
       - user-service
       - series-service
+      - favorites-service
     restart: always
     networks:
       - app-network

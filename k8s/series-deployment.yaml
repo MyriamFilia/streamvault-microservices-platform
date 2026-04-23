@@ -11,10 +11,14 @@ spec:
     metadata:
       labels:
         app: series-service
+      annotations:
+        traffic.sidecar.istio.io/excludeInboundPorts: "50051"  
+        traffic.sidecar.istio.io/excludeOutboundPorts: "50051"
     spec:
       containers:
         - name: series-service
-          image: myrafilia/series-service:v3
+          image: myrafilia/series-service:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
+            - containerPort: 50051

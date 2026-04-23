@@ -10,6 +10,20 @@ router = APIRouter(prefix="/users", tags=["Users"])
 security = HTTPBearer()
 
 
+# Route racine du service
+@router.get("")
+def root():
+    return {
+        "service": "user-service",
+        "status": "running"
+    }
+
+# ── Health check ──────────────────────────────────────────────
+@router.get("/health")
+def health():
+    return {"status": "UP"}
+
+
 # ── Inscription ──────────────────────────────────────────────
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -96,7 +110,3 @@ def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     blacklist_token(credentials.credentials)
     return {"message": "Déconnexion réussie"}
 
-# ── Health check ──────────────────────────────────────────────
-@router.get("/health")
-def health():
-    return {"status": "UP"}

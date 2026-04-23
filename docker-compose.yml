@@ -26,6 +26,7 @@ services:
     container_name: series-service
     ports:
       - "8000:8000"
+      - "50051:50051" # Port gRPC exposé pour les autres services
     volumes:
       - ./series-service:/app
     restart: always

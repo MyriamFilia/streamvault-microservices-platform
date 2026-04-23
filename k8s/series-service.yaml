@@ -6,7 +6,12 @@ spec:
   selector:
     app: series-service
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 8000
       targetPort: 8000
+    - name: grpc
+      protocol: TCP
+      port: 50051
+      targetPort: 50051
   type: ClusterIP

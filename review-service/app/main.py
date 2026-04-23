@@ -9,7 +9,9 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Review Service",
     description="Microservice de gestion des reviews",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/reviews/docs",
+    openapi_url="/reviews/openapi.json"
 )
 
 app.add_middleware(
@@ -22,10 +24,3 @@ app.add_middleware(
 
 
 app.include_router(router)
-
-
-@app.get("/")
-def root():
-    return {
-        "message": "Review Service is running"
-    }

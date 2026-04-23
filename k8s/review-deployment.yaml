@@ -14,6 +14,7 @@ spec:
       annotations:
         traffic.sidecar.istio.io/excludeOutboundPorts: "50051"
     spec:
+      serviceAccountName: review-service-sa
       containers:
         - name: review-service
           image: myrafilia/review-service:v2

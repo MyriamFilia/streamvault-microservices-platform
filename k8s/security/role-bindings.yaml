@@ -1,0 +1,14 @@
+# On lie le rôle série au service-account des séries
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: serie-service-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: series-service-sa
+  namespace: default
+roleRef:
+  kind: Role
+  name: serie-role
+  apiGroup: rbac.authorization.k8s.io

@@ -28,9 +28,9 @@ def health():
 @router.post("/register", response_model=UserResponse, status_code=201)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.username == user.username).first():
-        raise HTTPException(status_code=400, detail="Username déjà utilisé")
+        raise HTTPException(status_code=400, detail="Username already taken")
     if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email déjà utilisé")
+        raise HTTPException(status_code=400, detail="Email already used")
 
     new_user = User(
         username=user.username,
@@ -49,10 +49,10 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == credentials.username).first()
 
     if not user or not verify_password(credentials.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Identifiants incorrects")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Compte désactivé")
+        raise HTTPException(status_code=403, detail="Account disabled")
 
     token = create_access_token({
         "sub": str(user.id),
@@ -67,13 +67,16 @@ def get_me(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    payload = decode_access_token(credentials.credentials)
+    token = credentials.credentials
+    if is_token_blacklisted(token):                          
+        raise HTTPException(status_code=401, detail="Revoked token")
+    payload = decode_access_token(token)
     if not payload:
-        raise HTTPException(status_code=401, detail="Token invalide ou expiré")
+        raise HTTPException(status_code=401, detail="invalid or expired token")
 
     user = db.query(User).filter(User.id == int(payload["sub"])).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
 
@@ -84,13 +87,16 @@ def update_me(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    payload = decode_access_token(credentials.credentials)
+    token = credentials.credentials
+    if is_token_blacklisted(token):                         
+        raise HTTPException(status_code=401, detail="Revoked token")
+    payload = decode_access_token(token)
     if not payload:
-        raise HTTPException(status_code=401, detail="Token invalide ou expiré")
+        raise HTTPException(status_code=401, detail="invalid or expired token")
 
     user = db.query(User).filter(User.id == int(payload["sub"])).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+        raise HTTPException(status_code=404, detail="User not found")
 
     if updates.email:
         user.email = updates.email
@@ -106,7 +112,7 @@ def update_me(
 def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     payload = decode_access_token(credentials.credentials)
     if not payload:
-        raise HTTPException(status_code=401, detail="Token invalide ou expiré")
+        raise HTTPException(status_code=401, detail="invalid or expired token")
     blacklist_token(credentials.credentials)
-    return {"message": "Déconnexion réussie"}
+    return {"message": "Logout successful"}
 

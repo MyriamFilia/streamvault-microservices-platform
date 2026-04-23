@@ -12,7 +12,7 @@ def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(secu
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if user_id is None:
-            raise HTTPException(status_code=401, detail="Token invalide")
+            raise HTTPException(status_code=401, detail="Invalid token")
         return int(user_id)
     except Exception:
-        raise HTTPException(status_code=401, detail="Authentification échouée")
+        raise HTTPException(status_code=401, detail="Authentication failed")

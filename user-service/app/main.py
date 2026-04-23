@@ -9,7 +9,10 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="User Service",
     description="Gestion des utilisateurs et authentification JWT",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/users/docs",
+    openapi_url="/users/openapi.json"
+
 )
 
 app.add_middleware(
@@ -21,13 +24,3 @@ app.add_middleware(
 )
 
 app.include_router(user_router)
-
-
-@app.get("/")
-def home():
-    return {"service": "User Service", "status": "running"}
-
-
-@app.get("/health")
-def health():
-    return {"status": "UP"}

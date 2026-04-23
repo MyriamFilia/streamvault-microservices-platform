@@ -4,8 +4,22 @@ from app.database import get_db
 from app.models import Review
 from app.schemas import ReviewCreate, ReviewUpdate, ReviewResponse
 from app.auth import get_current_user_id
+from app.grpc_client import check_series_exists
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
+
+# Route racine du service
+@router.get("")
+def root():
+    return {
+        "service": "review-service",
+        "status": "running"
+    }
+
+# ── Health check ──────────────────────────────────────────────
+@router.get("/health")
+def health():
+    return {"status": "UP", "service": "review-service"}
 
 # ── Créer un avis ─────────────────────────────────────────────
 @router.post("/", response_model=ReviewResponse, status_code=201)
@@ -22,10 +36,17 @@ def add_review(
     if existing_review:
         raise HTTPException(
             status_code=400, 
-            detail="Vous avez déjà noté cette série. Utilisez la modification."
+            detail="You have already reviewed this series"
         )
 
-    # TODO : Vérification gRPC du series-service ici
+    # =========================================================
+    # gRPC : vérifier que la série existe vraiment
+    # =========================================================
+    if not check_series_exists(review.series_id):
+        raise HTTPException(
+            status_code=404,
+            detail="This series does not exist in series-service"
+        )
 
     new_review = Review(
         user_id=user_id, 
@@ -52,7 +73,7 @@ def update_review(
     ).first()
     
     if not review:
-        raise HTTPException(status_code=404, detail="Avis introuvable ou non autorisé")
+        raise HTTPException(status_code=404, detail="Review not found or not authorized")
     
     # Mise à jour des champs
     review.rating = review_update.rating
@@ -96,13 +117,9 @@ def delete_review(
     ).first()
     
     if not review:
-        raise HTTPException(status_code=404, detail="Avis introuvable")
+        raise HTTPException(status_code=404, detail="Review not found")
     
     db.delete(review)
     db.commit()
     return
 
-# ── Health check ──────────────────────────────────────────────
-@router.get("/health")
-def health():
-    return {"status": "UP", "service": "review-service"}

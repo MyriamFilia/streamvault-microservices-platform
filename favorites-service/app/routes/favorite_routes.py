@@ -7,11 +7,27 @@ from app.database import get_db
 from app.models import Favorite
 from app.schemas import FavoriteCreate, FavoriteResponse
 from app.auth import get_current_user_id
+from app.grpc_client import check_series_exists
 
 router = APIRouter(
     prefix="/favorites",
     tags=["Favorites"]
 )
+
+# Route racine du service
+@router.get("")
+def root():
+    return {
+        "service": "favorites-service",
+        "status": "running"
+    }
+
+# ── Health check ─────────────────────────────────────────────
+@router.get("/health")
+def health():
+    return {
+        "status": "UP"
+    }
 
 # ── Ajouter un favori ────────────────────────────────────────
 @router.post("/", response_model=FavoriteResponse, status_code=201)
@@ -29,25 +45,16 @@ def add_favorite(
     if existing_favorite:
         raise HTTPException(
             status_code=400,
-            detail="Cette série est déjà dans vos favoris"
+            detail="Item already in favorites"
         )
-
     # =========================================================
-    # TODO : ÉTAPE SUIVANTE (gRPC)
-    #
-    # Avant de sauvegarder, on devra interroger le series-service
-    # via gRPC pour vérifier que la série avec l'ID
-    # favorite.series_id existe réellement.
-    #
-    # Exemple futur :
-    #
-    # grpc_client.check_series_exists(favorite.series_id)
-    #
-    # Si la série n'existe pas :
-    # → lever une HTTPException(404)
-    #
-    # Cela évite d'ajouter un favori invalide.
+    # gRPC : vérifier que la série existe vraiment
     # =========================================================
+    if not check_series_exists(favorite.series_id):
+        raise HTTPException(
+            status_code=404,
+            detail="This series does not exist in series-service"
+        )
 
     # 2. Sauvegarder en base de données
     new_favorite = Favorite(
@@ -91,20 +98,13 @@ def delete_favorite(
     if not favorite:
         raise HTTPException(
             status_code=404,
-            detail="Favori introuvable"
+            detail="Favorite not found"
         )
 
     db.delete(favorite)
     db.commit()
 
     return {
-        "message": "Favori supprimé"
+        "message": "Favorite deleted"
     }
 
-
-# ── Health check ─────────────────────────────────────────────
-@router.get("/health")
-def health():
-    return {
-        "status": "UP"
-    }

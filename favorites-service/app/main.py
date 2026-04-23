@@ -10,7 +10,9 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Favorites Service",
     description="Microservice de gestion des séries favorites",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/favorites/docs",
+    openapi_url="/favorites/openapi.json"
 )
 
 app.add_middleware(
@@ -23,11 +25,3 @@ app.add_middleware(
 
 # ── Inclusion des routes ─────────────────────────────────────
 app.include_router(router)
-
-
-# ── Route racine simple ──────────────────────────────────────
-@app.get("/")
-def root():
-    return {
-        "message": "Favorites Service is running"
-    }

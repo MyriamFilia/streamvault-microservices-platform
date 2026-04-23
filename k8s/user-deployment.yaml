@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: myrafilia/user-service:v2
+          image: myrafilia/user-service:v3
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
@@ -26,8 +26,6 @@ spec:
               value: userdb
             - name: SECRET_KEY
               value: dev_secret_key_change_in_production
-            - name: SERIES_SERVICE_ADDR
-              value: series-service:50051
             # Récupération sécurisée depuis le Secret
             - name: POSTGRES_USER
               valueFrom:

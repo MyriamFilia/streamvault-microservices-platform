@@ -11,10 +11,12 @@ spec:
     metadata:
       labels:
         app: favorites-service
+      annotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "50051"
     spec:
       containers:
         - name: favorites-service
-          image: myrafilia/favorites-service:v1
+          image: myrafilia/favorites-service:v2
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

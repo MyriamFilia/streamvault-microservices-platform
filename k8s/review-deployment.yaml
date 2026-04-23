@@ -1,20 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: reviews-service-deployment
+  name: review-service-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: reviews-service
+      app: review-service
   template:
     metadata:
       labels:
-        app: reviews-service
+        app: review-service
+      annotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "50051"
     spec:
       containers:
-        - name: reviews-service
-          image: myrafilia/review-service:v1
+        - name: review-service
+          image: myrafilia/review-service:v2
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+// Le nom du "package" gRPC
+package series;
+
+// Le service gRPC exposer
+service SeriesValidator {
+  // Une fonction qui vérifie si l'ID d'une série existe
+  rpc CheckSeriesExists (SeriesRequest) returns (SeriesResponse);
+}
+
+// Le format de la question : on envoie juste un ID (un entier)
+message SeriesRequest {
+  int32 series_id = 1;
+}
+
+// Le format de la réponse : on reçoit Vrai ou Faux (un booléen)
+message SeriesResponse {
+  bool exists = 1;
+  string message = 2;
+}

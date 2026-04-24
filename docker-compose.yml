@@ -1,0 +1,122 @@
+services:
+
+  # ── PostgreSQL unique ──────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Series Service (API TVMaze) ────────────────────────────
+  series-service:
+    build: ./series-service
+    container_name: series-service
+    ports:
+      - "8000:8000"
+      - "50051:50051" # Port gRPC exposé pour les autres services
+    volumes:
+      - ./series-service:/app
+    restart: always
+    networks:
+      - app-network
+
+  # ── User Service ───────────────────────────────────────────
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./user-service:/app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: userdb
+      POSTGRES_HOST: postgres
+      SECRET_KEY: dev_secret_key_change_in_production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
+  # ── Favorites Service ──────────────────────────────────────
+  favorites-service:
+    build: ./favorites-service
+    container_name: favorites-service
+    ports:
+      - "8003:8000" # Accès direct pour tes tests via localhost:8003
+    volumes:
+      - ./favorites-service:/app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: favoritesdb   # Il pointe bien vers sa propre base !
+      POSTGRES_HOST: postgres
+      SECRET_KEY: dev_secret_key_change_in_production
+      SERIES_SERVICE_ADDR: series-service:50051 # Adresse gRPC du series-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
+
+  # ── Review Service ───────────────────────────────────────
+  review-service:
+    build: ./review-service
+    container_name: review-service
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./review-service:/app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminpass
+      POSTGRES_DB: reviewdb
+      POSTGRES_HOST: postgres
+      SECRET_KEY: dev_secret_key_change_in_production
+      SERIES_SERVICE_ADDR: series-service:50051 # Adresse gRPC du series-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
+  # ── Frontend + Nginx Proxy ─────────────────────────────────
+  frontend:
+    build: ./frontend 
+    container_name: frontend
+    ports:
+      - "5500:80"
+    depends_on:
+      - user-service
+      - series-service
+      - favorites-service
+      - review-service
+    restart: always
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
+    driver: bridge

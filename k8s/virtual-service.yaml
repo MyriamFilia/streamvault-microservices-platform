@@ -1,0 +1,56 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: series-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - series-gateway
+  http:
+    # RÈGLE 1 : Backend Series
+    - match:
+        - uri:
+            prefix: /api
+      route:
+        - destination:
+            host: series-service
+            port:
+              number: 8000
+
+    # RÈGLE 2 : Backend Users
+    - match:
+        - uri:
+            prefix: /users
+      route:
+        - destination:
+            host: user-service
+            port:
+              number: 8000
+
+    # RÈGLE 3 : Backend Favorites
+    - match:
+        - uri:
+            prefix: /favorites
+      route:
+        - destination:
+            host: favorites-service
+            port:
+              number: 8000
+
+    # RÈGLE 4 : Backend Reviews
+    - match:
+        - uri:
+            prefix: /reviews
+      route:
+        - destination:
+            host: review-service
+            port:
+              number: 8000
+
+    # RÈGLE 5 : Frontend (Par défaut)
+    - route:
+        - destination:
+            host: frontend-service
+            port:
+              number: 80

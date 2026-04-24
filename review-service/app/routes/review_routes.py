@@ -59,6 +59,28 @@ def add_review(
     db.refresh(new_review)
     return new_review
 
+
+# ── Récupérer mes avis ─────────────────────────────────────────
+@router.get("/me", response_model=list[ReviewResponse])
+def get_my_reviews(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    reviews = db.query(Review).filter(
+        Review.user_id == user_id
+    ).all()
+
+    return reviews
+
+# ── Récupérer les avis d'une série ────────────────────────────
+@router.get("/series/{series_id}", response_model=list[ReviewResponse])
+def get_reviews_for_series(
+    series_id: int, 
+    db: Session = Depends(get_db)
+):
+    return db.query(Review).filter(Review.series_id == series_id).all()
+
+
 # ── Modifier un avis (NOUVEAU grâce à updated_at) ─────────────
 @router.put("/{review_id}", response_model=ReviewResponse)
 def update_review(
@@ -82,26 +104,6 @@ def update_review(
     db.commit()
     db.refresh(review) # SQLAlchemy mettra à jour 'updated_at' automatiquement
     return review
-
-# ── Récupérer les avis d'une série ────────────────────────────
-@router.get("/series/{series_id}", response_model=list[ReviewResponse])
-def get_reviews_for_series(
-    series_id: int, 
-    db: Session = Depends(get_db)
-):
-    return db.query(Review).filter(Review.series_id == series_id).all()
-
-# ── Récupérer mes avis ─────────────────────────────────────────
-@router.get("/me", response_model=list[ReviewResponse])
-def get_my_reviews(
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db)
-):
-    reviews = db.query(Review).filter(
-        Review.user_id == user_id
-    ).all()
-
-    return reviews
 
 
 # ── Supprimer un avis ─────────────────────────────────────────

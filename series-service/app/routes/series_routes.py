@@ -32,7 +32,7 @@ def search_tv_series(
     except RequestException as e:
         raise HTTPException(
             status_code=502,
-            detail=f"Erreur API externe : {str(e)}"
+            detail=f"External API error: {str(e)}"
         )
 
 

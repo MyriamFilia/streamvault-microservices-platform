@@ -99,6 +99,9 @@ def update_me(
         raise HTTPException(status_code=404, detail="User not found")
 
     if updates.email:
+        existing = db.query(User).filter(User.email == updates.email, User.id != user.id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already used")
         user.email = updates.email
     if updates.password:
         user.hashed_password = hash_password(updates.password)
@@ -116,3 +119,25 @@ def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
     blacklist_token(credentials.credentials)
     return {"message": "Logout successful"}
 
+
+# ── Suppression compte ───────────────────────────────────────
+@router.delete("/me")
+def delete_me(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
+    token = credentials.credentials
+    if is_token_blacklisted(token):                         
+        raise HTTPException(status_code=401, detail="Revoked token")
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="invalid or expired token")
+
+    user = db.query(User).filter(User.id == int(payload["sub"])).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db.delete(user)
+    db.commit()
+    blacklist_token(token)  # Invalide le token après suppression du compte
+    return {"message": "Account deleted"}

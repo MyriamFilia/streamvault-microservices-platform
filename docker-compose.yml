@@ -68,6 +68,7 @@ services:
       POSTGRES_DB: favoritesdb   # Il pointe bien vers sa propre base !
       POSTGRES_HOST: postgres
       SECRET_KEY: dev_secret_key_change_in_production
+      SERIES_SERVICE_ADDR: series-service:50051 # Adresse gRPC du series-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,6 +91,7 @@ services:
       POSTGRES_DB: reviewdb
       POSTGRES_HOST: postgres
       SECRET_KEY: dev_secret_key_change_in_production
+      SERIES_SERVICE_ADDR: series-service:50051 # Adresse gRPC du series-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -99,13 +101,10 @@ services:
 
   # ── Frontend + Nginx Proxy ─────────────────────────────────
   frontend:
-    image: nginx:alpine
+    build: ./frontend 
     container_name: frontend
     ports:
       - "5500:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - user-service
       - series-service

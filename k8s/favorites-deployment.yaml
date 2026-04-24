@@ -17,7 +17,7 @@ spec:
       serviceAccountName: favorites-service-sa
       containers:
         - name: favorites-service
-          image: myrafilia/favorites-service:v2
+          image: myrafilia/favorites-service:v3
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

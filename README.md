@@ -12,7 +12,8 @@ L'application est divisée en 4 services backend indépendants et un frontend :
 - **User Service** : Gestion des utilisateurs, inscription, et génération de tokens d'authentification (JWT).
 - **Favorites Service** : Gestion des favoris utilisateurs. Agit comme **Client gRPC** pour vérifier l'existence d'une série avant l'ajout.
 - **Review Service** : Gestion des notes et commentaires. Agit également comme **Client gRPC**.
-- **Frontend** : Interface utilisateur (HTML/CSS/JS - _Bientôt en Vue.js_) servie via un Reverse Proxy Nginx.
+- **Frontend** : Interface utilisateur construite en **Vue.js 3** (Composition API), compilée avec **Vite** et servie via un Reverse Proxy **Nginx**.
+  Communique avec les services backend via des appels REST proxifiés par Nginx.
 
 ### Communication & Réseau
 
@@ -142,7 +143,44 @@ C:\Windows\System32\drivers\etc\hosts
 
 ---
 
-##
+## Frontend (Vue.js 3)
+
+L'interface utilisateur a été conçue pour offrir une expérience fluide et réactive (SPA - Single Page Application). Elle interagit avec les différents microservices de manière transparente.
+
+**Fonctionnalités clés :**
+
+- **Architecture par composants :** Utilisation de Vue 3 (Composition API avec `<script setup>`).
+- **Routage dynamique :** Navigation fluide et protection des routes privées (Redirection automatique si non authentifié) via `vue-router`.
+- **Gestion des requêtes & Intercepteurs :** Utilisation d'`Axios` avec des intercepteurs globaux. Le token JWT est injecté automatiquement dans les en-têtes de chaque requête. En cas d'expiration du token (Erreur 401), l'utilisateur est déconnecté proprement.
+- **UI/UX sur mesure :** Modales interactives, système de notifications (Toasts) et design 100% responsive en CSS pur.
+- **Serveur Nginx optimisé :** Le frontend est compilé puis servi par Nginx, configuré spécifiquement pour éviter les collisions de routes (`try_files`) et empêcher les redirections absolues liées à Docker.
+
+---
+
+## Jeu de Démo (Database Seeding)
+
+Puisque l'architecture repose sur des bases de données isolées par microservices, l'insertion manuelle en SQL est proscrite (notamment à cause du hachage des mots de passe et de la cohérence des IDs).
+
+Un script Python (`seed.py`) a été développé pour simuler un comportement utilisateur réel en attaquant directement l'API Gateway.
+
+**Ce que fait le script :**
+
+1. Création de 5 profils utilisateurs réalistes (ex: _Alice_Cinephile_).
+2. Authentification et récupération des tokens JWT.
+3. Sélection aléatoire de vraies séries via leurs identifiants TVMaze (ex: _Breaking Bad, Stranger Things_).
+4. Ajout de séries en favoris.
+5. Publication d'avis (Notes de 1 à 5) avec des commentaires textuels adaptés à la note générée.
+
+### Lancer la simulation
+
+Assurez-vous que le cluster Kubernetes est fonctionnel et que le tunnel (`minikube tunnel`) est actif.
+
+````bash
+# 1. Installer la dépendance HTTP si nécessaire
+pip install requests
+
+# 2. Exécuter le script
+python seed.py
 
 ---
 
@@ -181,7 +219,7 @@ Les permissions ont été vérifiées avec la commande suivante :
 
 ```bash
 kubectl auth can-i list pods --as=system:serviceaccount:default:series-service-sa
-```
+````
 
 Résultat attendu :
 
@@ -247,11 +285,11 @@ Le service utilisateur (`user-service`) intègre un système d'authentification 
 - **Hachage des mots de passe (Bcrypt) :** Les mots de passe ne sont **jamais** stockés en clair dans la base de données. L'algorithme `bcrypt` est utilisé pour le hachage irréversible lors de l'inscription et pour la vérification cryptographique à la connexion.
 - **Gestion Sécurisée des Clés :** La clé de signature des tokens est isolée via la variable d'environnement `SECRET_KEY` (chargée dynamiquement avec `os.getenv()`). Aucun secret n'est exposé en dur dans le code source.
 - **Expiration des Jetons :** Afin de limiter la surface d'attaque en cas de vol de session, les JWT possèdent une durée de vie stricte et limitée (`ACCESS_TOKEN_EXPIRE_MINUTES = 30`).
-- **Révocation et Blacklist :** Lors de l'appel à la route de déconnexion, le token actif est placé sur une liste noire (Blacklist) bloquant instantanément toute tentative de réutilisation. \*
+- **Révocation et Blacklist :** Lors de l'appel à la route de déconnexion, le token actif est placé sur une liste noire (Blacklist) bloquant instantanément toute tentative de réutilisation du token révoqué.
 
 ### Routes Protégées
 
-Le mécanisme de sécurité `HTTPBearer` agit comme un gardien sur les points d'entrée de l'API. Un jeton d'accès valide est obligatoirement..
+Le mécanisme de sécurité `HTTPBearer` agit comme un gardien sur les points d'entrée de l'API. Un jeton d'accès valide est obligatoirement requis dans le header `Authorization: Bearer <token>`pour accéder aux routes protégées (`/users/me`, `/favorites/`, `/reviews/`).
 
 ### 🎯 Bonnes Pratiques Globales (DevSecOps)
 
@@ -267,14 +305,16 @@ Ce projet ne se contente pas de sécuriser les routes, il applique une stratégi
 
 ## Stack technique
 
-| Technologie             | Usage                         |
-| ----------------------- | ----------------------------- |
-| FastAPI                 | Framework backend Python      |
-| PostgreSQL              | Base de données relationnelle |
-| Docker / Docker Compose | Conteneurisation locale       |
-| Kubernetes / Minikube   | Orchestration                 |
-| Istio                   | Service Mesh + Gateway        |
-| gRPC                    | Communication inter-services  |
-| JWT                     | Authentification              |
-| TVMaze API              | Source des données séries     |
-| Nginx                   | Reverse proxy frontend        |
+| Technologie             | Usage                                        |
+| ----------------------- | -------------------------------------------- |
+| FastAPI                 | Framework backend Python                     |
+| PostgreSQL              | Base de données relationnelle                |
+| Docker / Docker Compose | Conteneurisation locale                      |
+| Kubernetes / Minikube   | Orchestration                                |
+| Istio                   | Service Mesh + Gateway                       |
+| gRPC                    | Communication inter-services                 |
+| JWT                     | Authentification                             |
+| TVMaze API              | Source des données séries                    |
+| Nginx                   | Reverse proxy frontend                       |
+| Vue.js 3 / Vite         | Framework Frontend (Single Page Application) |
+| Axios                   | Client HTTP Frontend & Intercepteurs         |

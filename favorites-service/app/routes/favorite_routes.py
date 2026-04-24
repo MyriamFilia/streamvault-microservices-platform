@@ -1,6 +1,6 @@
 # favorites_routes.py
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException , status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -84,7 +84,7 @@ def get_my_favorites(
 
 
 # ── Supprimer un favori ──────────────────────────────────────
-@router.delete("/{favorite_id}")
+@router.delete("/{favorite_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_favorite(
     favorite_id: int,
     user_id: int = Depends(get_current_user_id),
@@ -103,8 +103,5 @@ def delete_favorite(
 
     db.delete(favorite)
     db.commit()
-
-    return {
-        "message": "Favorite deleted"
-    }
+    return
 

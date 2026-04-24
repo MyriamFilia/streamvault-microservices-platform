@@ -17,7 +17,7 @@ spec:
       serviceAccountName: review-service-sa
       containers:
         - name: review-service
-          image: myrafilia/review-service:v2
+          image: myrafilia/review-service:v3
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

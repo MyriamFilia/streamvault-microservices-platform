@@ -44,11 +44,11 @@ L'application est divisée en 4 services backend indépendants et un frontend :
 Les images du projet sont versionnées et disponibles publiquement.
 
 ```bash
-docker pull myrafilia/series-service:v4
-docker pull myrafilia/user-service:v3
-docker pull myrafilia/favorites-service:v2
-docker pull myrafilia/review-service:v2
-docker pull myrafilia/frontend-service:v3
+docker pull myrafilia/series-service:v5
+docker pull myrafilia/user-service:v4
+docker pull myrafilia/favorites-service:v3
+docker pull myrafilia/review-service:v3
+docker pull myrafilia/frontend-service:v2
 ```
 
 ---
@@ -175,12 +175,14 @@ Un script Python (`seed.py`) a été développé pour simuler un comportement ut
 
 Assurez-vous que le cluster Kubernetes est fonctionnel et que le tunnel (`minikube tunnel`) est actif.
 
-````bash
+```bash
 # 1. Installer la dépendance HTTP si nécessaire
 pip install requests
 
 # 2. Exécuter le script
 python seed.py
+
+```
 
 ---
 
@@ -219,7 +221,7 @@ Les permissions ont été vérifiées avec la commande suivante :
 
 ```bash
 kubectl auth can-i list pods --as=system:serviceaccount:default:series-service-sa
-````
+```
 
 Résultat attendu :
 
@@ -291,7 +293,7 @@ Le service utilisateur (`user-service`) intègre un système d'authentification 
 
 Le mécanisme de sécurité `HTTPBearer` agit comme un gardien sur les points d'entrée de l'API. Un jeton d'accès valide est obligatoirement requis dans le header `Authorization: Bearer <token>`pour accéder aux routes protégées (`/users/me`, `/favorites/`, `/reviews/`).
 
-### 🎯 Bonnes Pratiques Globales (DevSecOps)
+### Bonnes Pratiques Globales (DevSecOps)
 
 Ce projet ne se contente pas de sécuriser les routes, il applique une stratégie de **Défense en Profondeur** à tous les niveaux :
 

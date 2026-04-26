@@ -131,6 +131,20 @@ python seed.py
 
 ```
 
+## Configuration des hosts
+
+Ajouter dans le fichier hosts :
+
+```text
+127.0.0.1 series.local
+```
+
+Sous Windows :
+
+```text
+C:\Windows\System32\drivers\etc\hosts
+```
+
 ---
 
 ## URLs d'accès
@@ -292,22 +306,6 @@ Ce projet ne se contente pas de sécuriser les routes, il applique une stratégi
 - **Isolation réseau & Chiffrement de bout en bout** via **Istio Service Mesh** (mTLS Strict).
 - **Injection sécurisée** des identifiants (Bases de données) via les _Secrets_ Kubernetes.
 
-
-
-
-## Configuration des hosts
-
-Ajouter dans le fichier hosts :
-
-```text
-127.0.0.1 series.local
-```
-
-Sous Windows :
-
-```text
-C:\Windows\System32\drivers\etc\hosts
-```
 
 ---
 

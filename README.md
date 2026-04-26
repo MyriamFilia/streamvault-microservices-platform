@@ -118,7 +118,20 @@ Un script Python (`seed.py`) a été développé pour simuler un comportement ut
 4. Ajout de séries en favoris.
 5. Publication d'avis (Notes de 1 à 5) avec des commentaires textuels adaptés à la note générée.
 
-### Lancer la simulation
+### Lancer la simulation en local (Docker Compose)
+
+Assurez-vous que vos conteneurs Docker sont bien démarrés (via la commande `docker compose up -d`). Dans cet environnement, chaque microservice écoute sur son propre port.
+
+```bash
+# 1. Installer la dépendance HTTP si nécessaire
+pip install requests
+
+# 2. Exécuter le script
+python seed_local.py
+
+```
+
+### Lancer la simulation avec kubernetes
 
 Assurez-vous que le cluster Kubernetes est fonctionnel et que le tunnel (`minikube tunnel`) est actif.
 
